@@ -1,0 +1,10 @@
+{
+  "demo": {
+    "hash": "2fc8a46b7e6fd84daac104f796966c6c$aac54dcd5517b60e6ca0b7c5f4f349373ac82d35877da289d24b5d0c82e6cba8",
+    "email": "demo@auraauth.io"
+  },
+  "test": {
+    "hash": "d17aca1f73d377cba072135fb58d522c$590675d269d0eea8cfa68fa38620aa5c3982f09977ee863e1e96ca7450fbb397",
+    "email": "test@auraauth.io"
+  }
+}
