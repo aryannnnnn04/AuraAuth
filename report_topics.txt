@@ -1,0 +1,522 @@
+REPORT CHAPTER TOPICS WITH DETAILED CONTENT (AURAAUTH - AUTOML)
+================================================================
+
+CHAPTER 1: INTRODUCTION (06-08)
+--------------------------------
+Subtopic 1: Background and Need for Reliable AutoML
+Machine learning adoption has expanded rapidly in business, healthcare, finance,
+education, and governance systems. However, many practical deployments fail not
+because models are impossible to build, but because prediction outputs are treated as
+fully trustworthy without proper risk awareness. In many real-world scenarios, data
+is small, imbalanced, partially missing, and often noisy. Under these conditions,
+models can show strong validation scores yet still generate unstable predictions in
+production. This gap between benchmark performance and operational reliability is one
+of the central motivations behind AuraAuth.
+
+AuraAuth is designed as a reliability-first AutoML platform for tabular data. The
+platform does not stop at model training and accuracy reporting. Instead, it extends
+the machine learning lifecycle with uncertainty estimation, out-of-distribution
+detection, distribution shift monitoring, explainability outputs, and automated
+documentation generation. These additions make model behavior easier to validate,
+audit, and monitor after deployment.
+
+The need for such a system is especially high for small teams, startups, and
+academic projects where data science resources are limited. A guided pipeline that
+combines automation with trust signals can reduce failure risk, improve decision
+quality, and increase confidence among non-technical stakeholders.
+
+Subtopic 2: Project Objectives and Scope
+The core objective of AuraAuth is to provide a complete and practical AutoML
+workflow that prioritizes reliability in addition to raw performance. The first
+objective is to support user-friendly dataset onboarding through CSV upload and data
+validation. The second objective is to profile data quality in depth so users can
+identify risk factors such as missing values, duplicates, outliers, class imbalance,
+and feature-to-sample ratio mismatch before model training starts. The third
+objective is to automate preprocessing and hyperparameter optimization while
+retaining reproducibility of transformations.
+
+Another key objective is reliability-aware model selection. Instead of selecting a
+model solely from highest accuracy, the system aims to rank candidate models using a
+composite perspective that includes robustness and trust indicators. The scope also
+includes post-training intelligence: explainability through SHAP, uncertainty
+estimation for confidence-aware predictions, OOD checks for novel samples, and drift
+awareness through distribution shift analysis.
+
+From an implementation scope, AuraAuth includes a FastAPI backend as the ML service
+layer and a Streamlit frontend for interactive usage. Current endpoint flow is more
+mature for classification, while regression expansion remains a planned enhancement.
+Thus, the project scope is realistic, modular, and aligned with iterative growth.
+
+Subtopic 3: Significance of the Study
+The significance of this work lies in reframing what a successful machine learning
+system means. In many educational and industrial workflows, success is measured only
+by top metric values such as accuracy, F1-score, or AUC. While useful, these metrics
+alone do not tell whether predictions are dependable under changing data conditions.
+AuraAuth demonstrates that practical ML systems should include confidence quality,
+input novelty checks, and transparent interpretation as mandatory outputs.
+
+This project is significant for both technical and organizational reasons. From a
+technical point of view, it integrates multiple reliability mechanisms into one
+coherent pipeline, reducing fragmentation across separate tools. From an
+organizational perspective, it supports better governance by generating model cards
+and dataset sheets that improve traceability and communication with management,
+auditors, and domain experts.
+
+The study is also relevant for small-data contexts where overfitting and unstable
+generalization are common. By combining profiling, robust preprocessing,
+optimization, explainability, and monitoring-oriented outputs, AuraAuth provides a
+repeatable framework for building ML solutions that are not only accurate but also
+safe, explainable, and deployment-aware.
+
+
+CHAPTER 2: LITERATURE REVIEW (05-07)
+------------------------------------
+Subtopic 1: Existing AutoML Techniques
+AutoML research has historically focused on reducing manual effort in algorithm
+selection and hyperparameter tuning. Early systems relied on rule-based heuristics
+and exhaustive search methods, especially grid search, which are computationally
+expensive and often inefficient. Random search improved coverage by exploring wider
+parameter spaces with fewer trials, and later Bayesian optimization methods became
+popular because they can model the objective landscape and guide search toward
+promising configurations.
+
+Frameworks such as Auto-sklearn, TPOT, H2O AutoML, and modern Optuna-based
+pipelines have demonstrated strong results in automating model discovery. However,
+their default optimization objective often remains a performance metric, while
+reliability concerns are addressed externally. In practice, this means users still
+need additional tools for uncertainty, anomaly handling, and interpretability.
+
+AuraAuth aligns with modern AutoML practices by using Optuna with TPE-based Bayesian
+search and cross-validation across model families. The key difference is that the
+project embeds optimization in a broader reliability pipeline. Therefore, literature
+on AutoML supports the optimization backbone, while AuraAuth extends the design
+toward practical trust-aware usage.
+
+Subtopic 2: Reliability and Trust in ML Systems
+Reliable ML is now a major theme across AI governance and MLOps literature. Studies
+show that model confidence is often miscalibrated, especially under dataset shift or
+rare input patterns. This has motivated work in uncertainty quantification,
+confidence calibration, and abstention strategies. In parallel, OOD detection and
+anomaly detection research addresses the problem of unknown or weakly represented
+inputs where standard predictions become unreliable.
+
+Explainable AI research contributes another critical dimension: users need to know
+why a model predicted a certain class or value. Techniques such as SHAP and LIME are
+widely used because they provide local and global interpretability, making model
+behavior easier to inspect. In regulated or high-stakes domains, explainability is
+not optional; it is a requirement for accountability.
+
+AuraAuth combines these streams in one workflow. Instead of isolated trust modules,
+the system integrates uncertainty estimation, OOD checks, drift analysis, and SHAP
+interpretation as first-class functions. This architecture reflects a modern view
+from literature: trustworthy AI is achieved by layered safeguards, not by a single
+performance metric.
+
+Subtopic 3: Research Gap and AuraAuth Positioning
+Despite the maturity of AutoML tooling, a practical gap persists between model
+optimization and deployment reliability. Many platforms optimize training outcomes
+but provide limited support for comprehensive data diagnostics, post-hoc risk
+evaluation, and standardized documentation outputs. As a result, teams may deploy
+high-scoring models without understanding their failure modes.
+
+Another gap is workflow fragmentation. Users often run separate tools for profiling,
+separate notebooks for tuning, separate scripts for explainability, and manual
+documentation afterward. This increases operational complexity and makes
+reproducibility difficult. Literature in MLOps repeatedly emphasizes that integrated
+pipelines reduce error and improve maintainability.
+
+AuraAuth is positioned as a compact yet full-stack response to these gaps. It
+combines dataset profiling, preprocessing consistency, automated optimization,
+reliability-aware selection, explainability, uncertainty and OOD analysis, drift
+signals, and auto-generated model documentation in one coherent flow. Therefore,
+AuraAuth contributes practical value by operationalizing reliability concepts into a
+single user-facing AutoML system for small and noisy tabular data.
+
+
+CHAPTER 3: PROBLEM STATEMENT (02-03)
+------------------------------------
+Subtopic 1: Core Problem Definition
+The core problem addressed by this project is the mismatch between model performance
+in controlled evaluation and model trustworthiness in real-world usage. Standard ML
+pipelines can produce seemingly strong metrics even when data quality is poor,
+classes are imbalanced, or incoming samples differ from training distributions. This
+creates risk: systems may output predictions with high apparent confidence while the
+underlying evidence is weak.
+
+In tabular domains, this issue is amplified by dataset characteristics such as mixed
+data types, missing values, low sample counts, duplicate records, and outliers.
+Manual handling of these issues requires expertise and time, which is often not
+available in small teams. Existing automated workflows reduce effort but frequently
+ignore reliability diagnostics and post-training trust indicators.
+
+Therefore, the project problem can be stated as follows: there is a need for an
+integrated AutoML system that not only optimizes model accuracy but also evaluates
+and communicates prediction reliability through uncertainty, OOD awareness,
+explainability, and structured reporting.
+
+Subtopic 2: Technical Challenges
+Designing such a system introduces multiple technical challenges. First, data
+preparation must be robust across varied real-world datasets. The pipeline must
+process missing values, encode categorical features, scale numerics, and maintain
+transform consistency between training and inference. Any mismatch in transformation
+logic can invalidate production predictions.
+
+Second, optimization must balance efficiency and generalization. Hyperparameter
+search over multiple models can be computationally expensive, especially with
+cross-validation and limited hardware. The system must search effectively without
+overfitting to noise. Third, reliability estimation itself is nontrivial: uncertainty
+must be interpretable, OOD checks must identify novelty without excessive false
+alarms, and drift signals must be meaningful for operational monitoring.
+
+Finally, usability and integration are challenges. Outputs should be understandable
+to technical and non-technical users. APIs, frontend workflows, and documentation
+artifacts must remain aligned so that decisions are traceable and reproducible.
+
+Subtopic 3: Proposed Solution Statement
+AuraAuth proposes a modular, reliability-first AutoML architecture that unifies data
+quality analysis, preprocessing, automated optimization, reliability-aware model
+selection, and trust reporting in one end-to-end system. The solution starts at data
+ingestion, where validation and profiling identify risk conditions early. It then
+applies structured preprocessing and executes Optuna-based hyperparameter search with
+cross-validation over selected model families.
+
+After optimization, the system ranks candidate models using a composite reliability
+view rather than a single metric. The selected model is exposed through prediction
+endpoints and accompanied by reliability tools: uncertainty estimation for confidence
+awareness, OOD detection for input novelty, shift detection for monitoring, and SHAP
+for explanation of global and local behavior. Documentation generation then produces
+model cards and dataset sheets to support transparency.
+
+This solution addresses the identified problem by connecting model development and
+model trust into one practical workflow. It reduces manual complexity and provides a
+repeatable foundation for safer ML adoption in noisy tabular environments.
+
+
+CHAPTER 4: METHODOLOGY (04-05)
+------------------------------
+Subtopic 1: Data Ingestion and Profiling Method
+The methodology begins with controlled dataset ingestion using CSV uploads. The
+system performs schema and format checks to ensure the data is processable before
+training activities begin. Early validation reduces downstream failures and prevents
+misleading optimization runs on malformed inputs. After ingestion, data profiling is
+executed as a dedicated stage rather than an optional step.
+
+Profiling includes missing value rates per feature, duplicate sample analysis,
+outlier indicators, class distribution statistics, and feature-to-sample ratio
+assessment. These diagnostics are converted into warnings and recommendations so
+users understand not only what is wrong with data but also what corrective actions
+are possible. This method aligns with the reliability-first design, where data risk
+is visible before model selection decisions.
+
+By treating profiling as a first-class pipeline component, AuraAuth ensures that the
+quality of the dataset is explicitly documented and integrated into project decision
+making. This improves reproducibility and gives stakeholders confidence that model
+results are interpreted in the proper data context.
+
+Subtopic 2: Preprocessing and Feature Engineering Pipeline
+After profiling, the methodology proceeds to preprocessing with a reproducible
+pipeline approach. Missing values are handled through strategy-driven imputation,
+categorical variables are encoded into model-consumable form, and numerical features
+are scaled when required. The goal is to transform heterogeneous raw data into a
+consistent feature space suitable for automated model search.
+
+A critical methodological principle is transformation persistence. The fitted
+preprocessing artifacts from training are retained and reused during inference so
+incoming data receives identical treatment. This avoids train-inference skew, one of
+the most common hidden failures in production ML systems. The pipeline therefore acts
+as both a data preparation stage and a consistency contract for deployment.
+
+Feature engineering in this version remains conservative and reliability-oriented.
+Instead of aggressive handcrafted transformations that may overfit small datasets,
+the system emphasizes stable preprocessing and robust defaults. This decision is
+intentional for noisy tabular contexts where simpler transformations can generalize
+better than highly complex feature manipulations.
+
+Subtopic 3: Optimization and Selection Procedure
+Model optimization is performed with Optuna using TPE-based Bayesian search. For each
+candidate model family, the method defines a tunable hyperparameter space and runs
+guided trials under cross-validation. This allows the system to explore promising
+configurations efficiently while controlling for overfitting through fold-based
+evaluation.
+
+The methodology does not stop at obtaining the highest score from one metric.
+Candidate models are compared through a reliability-aware perspective that considers
+predictive quality together with robustness indicators. This selection approach is
+better aligned with production requirements, where stable and explainable behavior is
+often preferable to marginal metric gains.
+
+The final trained model is registered with associated metadata and can be used for
+prediction and analysis endpoints. This procedure creates a closed methodological
+loop: profile data, preprocess consistently, optimize systematically, select with
+reliability awareness, and expose model outputs with interpretability and risk
+signals.
+
+
+CHAPTER 5: SYSTEM DESIGN (10-12)
+--------------------------------
+Subtopic 1: High-Level Architecture
+AuraAuth follows a two-layer architecture composed of a FastAPI backend and a
+Streamlit frontend. The backend acts as the computational engine responsible for
+data processing, model optimization, inference services, and reliability analysis.
+The frontend serves as the interaction layer through which users upload datasets,
+configure experiments, monitor progress, and inspect outcomes.
+
+This separation supports maintainability and clean responsibility boundaries. ML
+logic remains centralized in backend modules, while presentation logic stays in the
+frontend. Such layering simplifies future improvements, including scaling backend
+services independently or replacing frontend components without rewriting the core
+pipeline.
+
+The architecture also reflects API-first design principles. Every major operation,
+from upload to explainability generation, is available through explicit endpoints.
+This allows not only manual usage through the UI but also potential integration with
+external systems, scripts, or automated workflows.
+
+Subtopic 2: Backend Module Design
+The backend is designed around modular components where each module owns a specific
+responsibility. Data profiling modules assess quality and emit recommendations.
+Preprocessing modules build and persist transformation pipelines. AutoML modules run
+hyperparameter optimization. Model selection modules evaluate candidate outcomes
+through reliability-oriented scoring criteria.
+
+Reliability support modules include uncertainty estimation, OOD detection, and
+distribution shift detection. Explainability modules provide SHAP-based global and
+local interpretation. Documentation modules produce structured artifacts such as
+model cards and dataset sheets. A pipeline manager orchestrates these components and
+controls stage transitions, reducing coupling between modules.
+
+This modular design improves testability and extensibility. New model families,
+additional diagnostics, or alternative reliability methods can be added by extending
+targeted modules rather than rewriting the whole system. The design therefore
+supports incremental evolution with lower engineering risk.
+
+Subtopic 3: Data and Control Flow
+The system flow begins with dataset upload and validation. Once accepted, profiling
+runs automatically and stores quality metrics with warnings. The user then initiates
+optimization by selecting target column and model candidates. Preprocessing is fitted
+on training data, optimization trials are executed, and the best model is selected
+for final training.
+
+After model registration, a model identifier enables downstream operations:
+prediction, uncertainty analysis, explainability reports, OOD checks, drift-related
+comparisons, and documentation generation. This ID-centric flow ensures consistent
+reference across modules and avoids ambiguity when multiple experiments are active.
+
+Control flow is deliberately explicit so each stage can be inspected and audited.
+Inputs, outputs, and metadata can be linked across stages, making debugging and
+report writing easier. This design choice directly supports reliability goals by
+ensuring users can trace how a prediction result was produced.
+
+Subtopic 4: Storage and Runtime Design Considerations
+Current runtime state is maintained in memory using dictionaries for datasets,
+models, profiling outputs, and optimization metadata. This approach offers rapid
+development speed and low complexity during prototyping and research phases. It also
+supports quick iteration when validating pipeline behavior and endpoint design.
+
+However, in-memory storage has known limitations. Data is not persistent across
+service restarts, and concurrency handling may become fragile under high traffic.
+Multi-user scenarios require stronger lifecycle management, access control, and
+transaction-safe storage. These constraints are acknowledged as part of the current
+design boundary.
+
+The system design intentionally treats persistence as a future extension point.
+Migration to a database-backed metadata layer and artifact storage service can be
+implemented without major architectural disruption because module interfaces are
+already separated. Therefore, the current runtime strategy is acceptable for
+development and academic demonstration while remaining compatible with production
+hardening plans.
+
+
+CHAPTER 6: IMPLEMENTATION (08-10)
+---------------------------------
+Subtopic 1: Backend Implementation Details
+The backend is implemented in Python using FastAPI for REST API construction and
+Pydantic for request-response validation. This combination provides strong typing,
+structured schema enforcement, and clear endpoint contracts. Data operations rely on
+pandas and numpy, while machine learning workflows use scikit-learn abstractions for
+preprocessing and model evaluation.
+
+Hyperparameter optimization is implemented through Optuna, enabling flexible trial
+definitions and efficient Bayesian-style exploration. Optional advanced learners such
+as XGBoost and LightGBM are included for stronger performance on tabular datasets
+when available. Explainability is integrated through SHAP, allowing both global
+feature importance and instance-level interpretation.
+
+Implementation emphasizes modular files for major capabilities, including
+`data_profiler`, `preprocessing`, `automl_engine`, `model_selector`, and reliability
+components under core modules. This structure makes the backend easier to test and
+improves readability for future contributors.
+
+Subtopic 2: Frontend Implementation Details
+The frontend is built with Streamlit, selected for rapid development of interactive
+data applications. It provides a straightforward interface for uploading datasets,
+selecting target columns, choosing candidate models, and triggering optimization.
+Users can inspect profiling summaries, model outcomes, and reliability artifacts
+without writing code.
+
+The UI design in this stage focuses on workflow clarity over visual complexity.
+Actions are organized in a sequence matching backend flow so users can progress from
+ingestion to analysis naturally. This reduces onboarding time for learners and
+non-expert users. Visualization support through Plotly, Matplotlib, and Seaborn
+enables flexible presentation of class distributions, metric comparisons, and feature
+importance trends.
+
+Frontend implementation also acts as a validation layer for usability requirements.
+By running real user interactions against backend APIs, it helps identify missing
+endpoints, response inconsistencies, and documentation gaps early in development.
+
+Subtopic 3: Reliability Feature Integration
+Reliability integration is a defining implementation feature of AuraAuth. Uncertainty
+estimation modules generate confidence-aware outputs so users can identify when a
+prediction should be trusted less. OOD detection modules inspect incoming samples for
+novelty relative to training data and flag potentially unsafe inference conditions.
+Distribution shift detection modules support monitoring by comparing reference and
+incoming data behavior.
+
+These capabilities are implemented as callable services, not static reports. As a
+result, reliability analysis can be requested on demand and linked to model IDs.
+This design allows the same trained model to be evaluated repeatedly under changing
+input batches, which is essential for operational monitoring.
+
+Implementation also considers interpretability. SHAP outputs complement uncertainty
+and OOD signals by explaining why predictions are produced. Together, these modules
+form a reliability layer that transforms model output from a single label into a
+context-rich decision aid.
+
+Subtopic 4: Documentation Automation
+The documentation subsystem generates model cards and dataset sheets automatically.
+This feature is implemented to reduce manual reporting effort and enforce consistency
+across experiments. Generated artifacts summarize data context, model configuration,
+performance indicators, reliability notes, and usage considerations.
+
+Outputs are designed for text, markdown, and html-friendly workflows, enabling reuse
+in technical documentation, project reports, and internal governance records.
+Automated documentation supports reproducibility because key training and evaluation
+details are captured immediately after experiment completion instead of being written
+later from memory.
+
+In implementation terms, documentation generation is connected to profiling,
+optimization, and analysis modules so content reflects actual pipeline outputs. This
+integration ensures that report artifacts are evidence-based and aligned with system
+state, improving trustworthiness for reviewers and stakeholders.
+
+
+CHAPTER 7: TESTING (03-04)
+--------------------------
+Subtopic 1: Functional and API Testing
+Functional testing verifies that every user-facing operation behaves as expected.
+Core scenarios include dataset upload, validation, profiling execution, optimization
+requests, prediction responses, and retrieval of reliability artifacts. API testing
+checks response schemas, status codes, error messages, and edge-case handling for
+invalid inputs.
+
+Negative testing is particularly important for robustness. Test cases include
+malformed CSV files, missing target column selection, unsupported data types, and
+invalid model identifiers. These tests confirm that the system fails safely with
+clear error communication rather than silent or ambiguous behavior.
+
+Endpoint-level testing also ensures integration consistency. For example, model IDs
+returned by optimization must be usable across explainability, uncertainty, and
+documentation endpoints. This cross-endpoint verification reduces runtime friction
+and supports stable workflow execution in the frontend.
+
+Subtopic 2: ML Pipeline Validation
+Beyond API correctness, ML pipeline validation checks methodological integrity.
+Preprocessing consistency tests confirm that train-time transformers are reused at
+inference. Cross-validation behavior is verified to ensure folds are applied and
+aggregate metrics are computed correctly. Optimization reproducibility is checked at
+configuration level to detect unstable behavior under repeated runs.
+
+Validation also addresses data-risk scenarios. Experiments on small and noisy
+datasets are used to evaluate whether profiling warnings, reliability signals, and
+selection outcomes remain coherent. This ensures the system does not present false
+confidence under difficult data conditions.
+
+Where feasible, threshold-based assertions are used for sanity checks rather than
+strict metric locking. This balances test stability with the natural variability of
+stochastic optimization and real-world data splits.
+
+Subtopic 3: Quality and Tooling
+Project quality is supported by a standard Python tooling stack. `pytest` is used
+for automated tests, while `black` enforces formatting consistency. `flake8` helps
+identify lint issues and potential code-smell patterns. `isort` maintains clean and
+predictable import organization. `mypy` contributes static typing assurance for early
+detection of interface mismatches.
+
+These tools are not only style preferences; they improve long-term maintainability.
+Consistent formatting and import hygiene reduce merge conflicts, while static checks
+help prevent runtime defects in API and pipeline interactions. Combined with module
+level tests, the toolchain creates a disciplined engineering workflow.
+
+Quality practices also extend to documentation and naming consistency. Clear module
+boundaries, explicit endpoint contracts, and descriptive reports make the project
+easier to review and extend. This is particularly valuable in collaborative and
+academic environments where clarity is as important as correctness.
+
+
+CHAPTER 9: CONCLUSION & FUTURE SCOPE (02)
+-----------------------------------------
+Subtopic 1: Conclusion
+AuraAuth demonstrates that AutoML can be designed as a reliability-centered system
+rather than a metric-maximization utility. The project integrates core ML lifecycle
+stages from dataset ingestion and profiling to preprocessing, optimization, and model
+selection, then extends into trust-aware analysis through uncertainty estimation,
+OOD detection, distribution shift awareness, explainability, and documentation
+generation.
+
+This integrated workflow addresses a practical need in small and noisy tabular data
+settings where naive automation can produce misleading confidence. By combining model
+performance with risk and transparency signals, AuraAuth supports better technical
+decisions and clearer stakeholder communication.
+
+Overall, the project contributes a practical blueprint for safer ML adoption. Its
+modular architecture, API-first implementation, and report-ready outputs make it
+suitable for academic demonstration, prototype deployment, and further research on
+trustworthy AutoML systems.
+
+Subtopic 2: Future Scope
+Several enhancements can elevate AuraAuth from prototype-level maturity to production
+readiness. The first priority is persistent storage for datasets, model metadata,
+and generated artifacts. This includes database integration, artifact versioning,
+and secure retrieval across sessions. The second priority is stronger concurrency and
+multi-user support through state management and scalable service design.
+
+Another future area is expanding regression-focused API support to match current
+classification flow depth. Reliability modules can also be strengthened with advanced
+calibration methods, richer OOD ensembles, and continuous drift monitoring with alert
+rules. Deployment integration with CI/CD and MLOps observability stacks would further
+improve lifecycle management.
+
+Future work should also include broader benchmarking against established AutoML
+platforms using reliability-centered evaluation criteria. This will help quantify the
+practical benefits of AuraAuth's design philosophy and guide targeted optimization in
+next versions.
+
+
+CHAPTER 10: REFERENCES (01)
+---------------------------
+Subtopic 1: Academic and Technical References
+This section should include foundational and recent literature across AutoML,
+Bayesian optimization, uncertainty estimation, OOD detection, distribution shift,
+and explainable AI. Priority references include peer-reviewed journal articles,
+top-tier conference papers, and established survey publications. These sources should
+be used to justify methodological choices made in AuraAuth, especially around search
+strategy, reliability integration, and explainability tooling.
+
+A strong reference list should balance theory and implementation relevance. For
+example, include works that define probabilistic uncertainty concepts and works that
+evaluate practical calibration or OOD methods on tabular benchmarks. Citation style
+should remain consistent throughout the report according to institutional guidelines.
+
+Subtopic 2: Framework and Library Documentation
+In addition to academic sources, official technical documentation should be cited for
+the frameworks and libraries used in implementation. Essential entries include
+FastAPI, Pydantic, Streamlit, pandas, numpy, scikit-learn, Optuna, SHAP, XGBoost,
+and LightGBM. These references support reproducibility by linking implementation
+details to authoritative sources.
+
+Documentation references should include version context wherever possible, because
+APIs can evolve over time. For report quality, organize links and documentation
+citations in a structured format that distinguishes framework documentation from
+tutorial or community blog sources. This improves credibility and makes future
+maintenance easier for project reviewers and developers.

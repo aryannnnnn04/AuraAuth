@@ -1,0 +1,146 @@
+AURAAUTH PROJECT OVERVIEW
+=========================
+
+1) WHAT THIS PROJECT IS
+-----------------------
+AuraAuth is a reliability-first AutoML system for small and noisy tabular datasets.
+It is built as a Python project with two major parts:
+- A FastAPI backend that handles ML processing and APIs.
+- A Streamlit frontend that provides an interactive user interface.
+
+The main goal is not only to train accurate models, but also to make predictions
+more trustworthy through uncertainty, out-of-distribution checks, explainability,
+and generated documentation.
+
+
+2) WHAT IT DOES
+---------------
+AuraAuth supports an end-to-end machine learning workflow:
+
+A) Dataset upload and validation
+- Accepts CSV files.
+- Validates file format, size, and basic data conditions.
+
+B) Data profiling
+- Analyzes missing values, duplicates, outliers, class balance,
+	feature-to-sample ratio, and overall data quality.
+- Produces warnings and recommendations.
+
+C) Preprocessing
+- Handles missing values.
+- Encodes categorical variables.
+- Scales features.
+- Keeps fitted transformers so inference uses the same transformations.
+
+D) AutoML optimization
+- Uses Optuna with Bayesian/TPE search to tune hyperparameters.
+- Tests multiple model families using cross-validation.
+
+E) Model selection
+- Selects best model using composite reliability-aware scoring,
+	not raw accuracy alone.
+
+F) Prediction
+- Supports single and batch predictions.
+- Returns confidence where possible.
+
+G) Reliability features
+- Uncertainty estimation (classification and regression paths).
+- OOD detection for novel/anomalous inputs.
+- Distribution shift detection for drift monitoring.
+
+H) Explainability
+- SHAP-based global feature importance and local prediction explanations.
+
+I) Documentation
+- Auto-generates model cards and dataset sheets.
+- Exports documentation in text/markdown/html-friendly forms.
+
+
+3) HOW IT WORKS (STEP-BY-STEP)
+------------------------------
+Typical backend API flow:
+
+1. Upload a dataset.
+2. Profile the dataset.
+3. Start optimization with target column and candidate models.
+4. Preprocess features and run model tuning.
+5. Select and train the best model.
+6. Use the model id for prediction and analysis endpoints.
+7. Request explainability, uncertainty, OOD, and documentation outputs.
+
+Runtime storage currently uses in-memory dictionaries for datasets,
+models, optimization metadata, and profiling reports.
+
+
+4) HOW IT IS MADE (TECH STACK)
+------------------------------
+Language:
+- Python
+
+Backend:
+- FastAPI, Pydantic, Uvicorn
+- pandas, numpy, scipy
+- scikit-learn
+- Optuna
+- XGBoost, LightGBM
+- SHAP
+
+Frontend:
+- Streamlit
+- Plotly/Matplotlib/Seaborn available for visualization
+
+Dev tools and quality:
+- pytest, black, flake8, isort, mypy
+
+
+5) PROJECT STRUCTURE
+--------------------
+Top level:
+- README.md
+- AuraAuth/
+
+AuraAuth/backend:
+- main.py: FastAPI entry point and API routes.
+- data_profiler.py: Data quality and health analysis.
+- preprocessing.py: Transformation pipeline.
+- automl_engine.py: Hyperparameter optimization engine.
+- model_selector.py: Reliability-aware ranking and selection.
+- ood_detector.py: Out-of-distribution detection logic.
+- config.py: Central configuration dataclasses.
+
+AuraAuth/backend/core:
+- pipeline_manager.py: End-to-end pipeline orchestrator.
+- uncertainty_estimator.py: Prediction confidence/uncertainty.
+- distribution_shift_detector.py: Shift/drift detection.
+- explainability_engine.py: SHAP explanation engine.
+- documentation_generator.py: Model cards and dataset sheets.
+
+AuraAuth/frontend:
+- app.py: Streamlit app entry and routing.
+- utils.py: Frontend helper utilities placeholder.
+
+
+6) DESIGN IDEAS BEHIND THE SYSTEM
+---------------------------------
+- Reliability over pure benchmark score.
+- Built for small-data constraints and noisy real-world inputs.
+- Modular architecture so each capability is testable and replaceable.
+- Explainability and documentation included as first-class outputs.
+
+
+7) CURRENT LIMITATIONS
+----------------------
+- In-memory storage is not persistent and is not ideal for production concurrency.
+- API optimization path currently focuses on classification; regression support in
+	API endpoints is limited.
+- The direct prediction endpoint has a simplified OOD handling path, while full OOD
+	analysis is provided by dedicated endpoint flow.
+
+
+8) WHY THIS PROJECT IS USEFUL
+-----------------------------
+AuraAuth helps users move from only "best score" thinking to "safe and useful model"
+thinking. It combines model performance with trust signals so outputs are easier to
+validate, explain, monitor, and use in real environments.
+
