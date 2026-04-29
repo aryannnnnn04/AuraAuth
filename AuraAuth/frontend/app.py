@@ -2089,15 +2089,6 @@ def page_login():
             if st.button("Sign Up", key="login_signup", width="stretch", type="secondary"):
                 set_auth_mode("signup")
                 st.rerun()
-        
-        # Demo credentials
-        st.markdown("""
-            <div style="text-align: center; margin-top: 26px; color: #A7B1C8; font-size: 0.85rem;">
-                <p><strong>Demo Credentials:</strong></p>
-                <p>Username: <code>demo</code></p>
-                <p>Password: <code>password123</code></p>
-            </div>
-        """, unsafe_allow_html=True)
 
 
 def page_signup():
